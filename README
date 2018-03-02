@@ -1,6 +1,6 @@
-Simple reference code that demonstrates use of C regex library.
+Reference implementation of regex library. This example extracts key/value pairs from a string.
 
-To conmpile, just perform make.
+To compile, just perform make.
 
 To run,
 

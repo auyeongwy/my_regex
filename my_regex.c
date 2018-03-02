@@ -16,7 +16,7 @@ limitations under the License.
 
 
 /** @file my_regex.c
- *  Reference implementation of regex library.
+ *  Reference implementation of regex library. This example extracts key/value pairs from a string.
  *  Usage: 
  *  Just run my_regex
  */
@@ -37,11 +37,11 @@ int main(int argc, char *argv[])
 {
 	regex_t re; /* The regex expression. */
 	regmatch_t matches[3]; /* Regext matched strings. */
-	int ret, len; 
+	int ret, len, max_len, offset; 
 	char buf[BUF_LEN];
-	char *char_ptr;
-	char *const text = "option1=value1"; /* The text to match against. */
-	const char *const regexp = "([^=]+)=([^\\n]+)"; /* The regular expression to match the text and extract the option/value pair. */
+	char *txt_ptr, *char_ptr;
+	char *const text = "option1=value1\noption2=value2"; /* The text to match against. */
+	const char *const regexp = "([^=]+)=([^\n]+)"; /* The regular expression to match the text and extract the option/value pair. */
 	
 	
 	if((ret = regcomp(&re, regexp, REG_EXTENDED)) != 0) { /* Compile the regex expression. */
@@ -53,33 +53,42 @@ int main(int argc, char *argv[])
 	} 
 	
 	
-	if(regexec(&re, text, 3, matches, 0) == 0) { /* Perform the match. */
-		printf("Match OK\n");
-
-		/* Print the matched string positions. */
-		printf("%d %d\n", matches[0].rm_so, matches[0].rm_eo); 
-		printf("%d %d\n", matches[1].rm_so, matches[1].rm_eo);
-		printf("%d %d\n", matches[2].rm_so, matches[2].rm_eo);
-		
-		/* Get the option match. */
-		char_ptr = text + matches[1].rm_so;
-		if((len = matches[1].rm_eo - matches[1].rm_so) > BUF_LEN)
-			len = BUF_LEN-1;
-		memcpy(buf, char_ptr, len);
-		buf[len] = 0;
-		printf("option:%s ", buf);
-		
-		/* Get the value match. */
-		char_ptr = text + matches[2].rm_so;
-		if((len = matches[2].rm_eo - matches[2].rm_so) > BUF_LEN)
-			len = BUF_LEN-1;
-		memcpy(buf, char_ptr, len);
-		buf[len] = 0;
-		printf("value:%s\n", buf);
-	}
-	else
-		printf("Match NOK\n");
+	max_len = strlen(text);
+	offset = 0; 
+	while(offset < max_len) { /* Need to iterate through the string to get the key/values. */
 	
+		txt_ptr = text + offset;
+		if(regexec(&re, txt_ptr, 3, matches, 0) == 0) { /* Perform the match. */
+			printf("Match OK\n");
+
+			/* Print the matched string positions. */
+			printf("%d %d\n", matches[0].rm_so, matches[0].rm_eo); 
+			printf("%d %d\n", matches[1].rm_so, matches[1].rm_eo);
+			printf("%d %d\n", matches[2].rm_so, matches[2].rm_eo);
+		
+			/* Get the option match. */
+			char_ptr = txt_ptr + matches[1].rm_so;
+			if((len = matches[1].rm_eo - matches[1].rm_so) > BUF_LEN)
+				len = BUF_LEN-1;
+			memcpy(buf, char_ptr, len);
+			buf[len] = 0;
+			printf("option:%s ", buf);
+		
+			/* Get the value match. */
+			char_ptr = txt_ptr + matches[2].rm_so;
+			if((len = matches[2].rm_eo - matches[2].rm_so) > BUF_LEN)
+				len = BUF_LEN-1;
+			memcpy(buf, char_ptr, len);
+			buf[len] = 0;
+			printf("value:%s\n", buf);
+			
+			offset += (matches[2].rm_eo + 1); /* After extracting a pair of values, increase the offset to the next part of the string. */
+		}
+		else {
+			printf("Match NOK\n");
+			break;
+		}
+	}
 	
 do_exit:
 	regfree(&re);
