@@ -1,0 +1,7 @@
+Simple reference code that demonstrates use of C regex library.
+
+To conmpile, just perform make.
+
+To run,
+
+my_regex
