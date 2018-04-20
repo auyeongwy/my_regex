@@ -25,7 +25,7 @@ limitations under the License.
 #include <regex.h>
 #include <string.h>
 
-#define BUF_LEN 64
+#define BUF_LEN 128
 
 
 /** Main function of the application.
@@ -40,8 +40,11 @@ int main(int argc, char *argv[])
 	int ret, len, max_len, offset; 
 	char buf[BUF_LEN];
 	char *txt_ptr, *char_ptr;
-	char *const text = "option1=value1\noption2=value2"; /* The text to match against. */
-	const char *const regexp = "([^=]+)=([^\n]+)"; /* The regular expression to match the text and extract the option/value pair. */
+	char *const text = "option1 = value1\noption2 = value2\nattribute = 1:2\nattribute = 2:2"; /* The text to match against. */
+	//char *const text = "ixEngine=injection_mode=packet;nb_workers=1;nb_flows=200000;fastcase_disable=1"; /* The text to match against. */
+	//const char *const regexp = "([^=]+)=([^\n]+)"; /* The regular expression to match the text and extract the option/value pair. */
+	const char *const regexp = "(\\w+) *= *(\\S+)"; /* The regular expression to match the text and extract the option/value pair. */
+	//const char *const regexp2 = "(\\w+) *= *(\\w+)"; /* The regular expression to match the form "attribute=?" pair. */
 	
 	
 	if((ret = regcomp(&re, regexp, REG_EXTENDED)) != 0) { /* Compile the regex expression. */
@@ -51,6 +54,7 @@ int main(int argc, char *argv[])
 		ret = -1;
 		goto do_exit;
 	} 
+
 	
 	
 	max_len = strlen(text);
@@ -89,6 +93,11 @@ int main(int argc, char *argv[])
 			break;
 		}
 	}
+	
+	
+	
+	
+	
 	
 do_exit:
 	regfree(&re);
